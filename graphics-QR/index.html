@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generador QR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: linear-gradient(135deg, #669fea, #669fea);
+      color: #333;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px;
+      user-select: none;
+      position: relative;
+      padding-bottom: 60px; /* espacio para footer */
+    }
+
+    h1 {
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 30px;
+      text-shadow: 1px 1px 6px rgba(0,0,0,0.3);
+      font-size: 2.5rem;
+      text-align: center;
+    }
+
+    .container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none;
+      margin-bottom: 20px;
+    }
+    input[type="text"]:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 8px rgba(102,126,234,0.6);
+    }
+
+    button {
+      background-color: #667eea;
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 6px 14px rgba(102,126,234,0.5);
+      user-select: none;
+      width: 100%;
+    }
+    button:disabled {
+      background-color: #a3a3a3;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+    button:not(:disabled):hover {
+      background-color: #5f9ed8;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(85,99,193,0.6);
+    }
+
+    canvas {
+      margin-top: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      background-color: #fff;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 100%;
+      height: auto;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #ddd;
+      font-size: 0.9rem;
+      font-weight: 500;
+      user-select: none;
+      text-shadow: 0 0 5px rgba(0,0,0,0.4);
+      letter-spacing: 0.03em;
+      background: rgba(102, 159, 234, 0.2);
+      padding: 6px 14px;
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      .container {
+        padding: 24px 20px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Generador QR</h1>
+  <div class="container">
+    <input type="text" id="urlInput" placeholder="Ingresa una URL" />
+    <button id="generateBtn" disabled>Generar QR</button>
+    <canvas id="qrCanvas"></canvas>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script>
+    const input = document.getElementById('urlInput');
+    const button = document.getElementById('generateBtn');
+    const canvas = document.getElementById('qrCanvas');
+    const ctx = canvas.getContext('2d');
+
+    input.addEventListener('input', () => {
+      button.disabled = input.value.trim() === '';
+    });
+
+    button.addEventListener('click', () => {
+      const text = input.value.trim();
+      if (!text) {
+        alert('Por favor, ingresa una URL válida.');
+        return;
+      }
+
+      const typeNumber = 0;
+      const errorCorrectionLevel = 'H';
+      const qr = qrcode(typeNumber, errorCorrectionLevel);
+      qr.addData(text);
+      qr.make();
+
+      const cellSize = 6;
+      const margin = 4;
+      const size = qr.getModuleCount();
+      const canvasSize = (size + margin * 2) * cellSize;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#000";
+
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          if (qr.isDark(row, col)) {
+            ctx.fillRect((col + margin) * cellSize, (row + margin) * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    });
+  </script>
+
+  <footer>
+    Brayan Alexis García Martínez
+  </footer>
+</body>
+</html>
